@@ -1,0 +1,4 @@
+enum GeofenceRegionType {
+  circular,
+  polygon,
+}
