@@ -18,6 +18,7 @@ class Geofencing {
   final List<GeofenceStatusChanged> _geofenceStatusChangedListeners = [];
   final List<GeofenceErrorCallback> _geofenceErrorCallbackListeners = [];
 
+  /// Set up the geofencing service.
   void setup({
     int? interval,
     int? accuracy,
@@ -34,6 +35,7 @@ class Geofencing {
     );
   }
 
+  /// Start the geofencing service with [regions].
   Future<void> start({Set<GeofenceRegion> regions = const {}}) async {
     if (_isRunningService) {
       throw GeofencingAlreadyStartedException();
@@ -48,6 +50,9 @@ class Geofencing {
     _printDebugLog('Geofencing service has started.');
   }
 
+  /// Stop the geofencing service.
+  ///
+  /// Setting the [keepsRegions] value to `true` will remove all regions.
   Future<void> stop({bool keepsRegions = false}) async {
     if (_isRunningService) {
       await _unsubscribeStreams();
@@ -61,6 +66,7 @@ class Geofencing {
     }
   }
 
+  /// Pause the geofencing service.
   void pause() {
     if (_isRunningService) {
       _locationSubscription?.pause();
@@ -68,6 +74,7 @@ class Geofencing {
     }
   }
 
+  /// Resume the geofencing service.
   void resume() {
     if (_isRunningService) {
       _locationSubscription?.resume();
@@ -75,50 +82,65 @@ class Geofencing {
     }
   }
 
+  /// Whether the geofencing service is running.
   bool get isRunningService => _isRunningService;
 
+  /// Get geofence regions.
   Set<GeofenceRegion> get regions => _regions.values.toSet();
 
+  /// Add geofence region.
   void addRegion(GeofenceRegion region) {
     _regions[region.id] = region;
   }
 
+  /// Add geofence regions.
   void addRegions(Set<GeofenceRegion> regions) {
     regions.forEach(addRegion);
   }
 
+  /// Remove geofence region.
   void removeRegion(GeofenceRegion region) {
     removeRegionById(region.id);
   }
 
+  /// Remove geofence regions.
   void removeRegions(Set<GeofenceRegion> regions) {
     regions.forEach(removeRegion);
   }
 
+  /// Remove geofence region by [GeofenceRegion.id].
   void removeRegionById(String id) {
     _regions.remove(id);
   }
 
+  /// Clear all geofence regions.
   void clearAllRegions() {
     _regions.clear();
   }
 
+  /// Register a closure to be called when the [GeofenceStatus] changes.
   void addGeofenceStatusChangedListener(GeofenceStatusChanged listener) {
     _geofenceStatusChangedListeners.add(listener);
   }
 
+  /// Remove a previously registered closure from the list of closures that
+  /// are notified when the [GeofenceStatus] changes.
   void removeGeofenceStatusChangedListener(GeofenceStatusChanged listener) {
     _geofenceStatusChangedListeners.remove(listener);
   }
 
+  /// Register a closure to be called when a geofence error occurs.
   void addGeofenceErrorCallbackListener(GeofenceErrorCallback listener) {
     _geofenceErrorCallbackListeners.add(listener);
   }
 
+  /// Remove a previously registered closure from the list of closures that
+  /// are notified when a geofence error occurs.
   void removeGeofenceErrorCallbackListener(GeofenceErrorCallback listener) {
     _geofenceErrorCallbackListeners.remove(listener);
   }
 
+  /// Clear all listeners registered in the service.
   void clearAllListeners() {
     _geofenceStatusChangedListeners.clear();
     _geofenceErrorCallbackListeners.clear();

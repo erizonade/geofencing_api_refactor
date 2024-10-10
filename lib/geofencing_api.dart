@@ -19,7 +19,7 @@ export 'src/errors/location_permission_denied_exception.dart';
 export 'src/errors/location_permission_permanently_denied_exception.dart';
 export 'src/errors/location_services_disabled_exception.dart';
 export 'src/models/geofence_region.dart';
-export 'src/models/geofence_region_type.dart';
+export 'src/models/geofence_type.dart';
 export 'src/models/geofence_status.dart';
 export 'src/models/geofencing_options.dart';
 export 'src/models/geofencing_types.dart';

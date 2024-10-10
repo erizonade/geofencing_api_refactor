@@ -1,9 +1,10 @@
 import 'package:meta/meta.dart';
 
-import 'geofence_region_type.dart';
+import 'geofence_type.dart';
 import 'geofence_status.dart';
 import 'lat_lng.dart';
 
+/// This class represents a region containing a geofence.
 abstract class GeofenceRegion {
   GeofenceRegion({
     required this.type,
@@ -15,18 +16,29 @@ abstract class GeofenceRegion {
   })  : loiteringDelay = loiteringDelay ?? 30000,
         assert(id.isNotEmpty);
 
-  final GeofenceRegionType type;
+  /// The type of the geofence.
+  final GeofenceType type;
 
+  /// The unique id of the geofence region.
   final String id;
 
+  /// The data of the geofence region.
   final Object? data;
 
+  /// The status of the geofence.
+  ///
+  /// The default is `GeofenceStatus.exit`.
   final GeofenceStatus status;
 
+  /// The delay between [GeofenceStatus.enter] and [GeofenceStatus.dwell] in milliseconds.
+  ///
+  /// The default is `30000`.
   final int loiteringDelay;
 
+  /// The time the geofence status was updated.
   final DateTime? timestamp;
 
+  /// Creates a GeofenceRegion with the circular type.
   factory GeofenceRegion.circular({
     required String id,
     Object? data,
@@ -42,6 +54,7 @@ abstract class GeofenceRegion {
         loiteringDelay: loiteringDelay,
       );
 
+  /// Creates a GeofenceRegion with the polygon type.
   factory GeofenceRegion.polygon({
     required String id,
     Object? data,
@@ -55,6 +68,7 @@ abstract class GeofenceRegion {
         loiteringDelay: loiteringDelay,
       );
 
+  /// Returns the fields of [GeofenceRegion] in JSON format.
   Map<String, dynamic> toJson();
 
   @internal
@@ -64,6 +78,7 @@ abstract class GeofenceRegion {
   });
 }
 
+/// A GeofenceRegion with the circular type.
 class GeofenceCircularRegion extends GeofenceRegion {
   GeofenceCircularRegion({
     required super.id,
@@ -74,10 +89,14 @@ class GeofenceCircularRegion extends GeofenceRegion {
     super.loiteringDelay,
     super.timestamp,
   })  : assert(radius >= 10),
-        super(type: GeofenceRegionType.circular);
+        super(type: GeofenceType.circular);
 
+  /// The center coordinates of the geofence.
   final LatLng center;
 
+  /// The radius of the geofence.
+  ///
+  /// This value should be 10 meters or greater.
   final double radius;
 
   @override
@@ -109,6 +128,7 @@ class GeofenceCircularRegion extends GeofenceRegion {
       );
 }
 
+/// A GeofenceRegion with the polygon type.
 class GeofencePolygonRegion extends GeofenceRegion {
   GeofencePolygonRegion({
     required super.id,
@@ -118,8 +138,11 @@ class GeofencePolygonRegion extends GeofenceRegion {
     super.loiteringDelay,
     super.timestamp,
   })  : assert(polygon.length >= 3),
-        super(type: GeofenceRegionType.polygon);
+        super(type: GeofenceType.polygon);
 
+  /// The polygon coordinates of the geofence.
+  ///
+  /// This value must have size 3 or greater.
   final List<LatLng> polygon;
 
   @override

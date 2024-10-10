@@ -1,6 +1,7 @@
+/// An exception that occurs when the device location settings are turned off.
 class LocationServicesDisabledException implements Exception {
   LocationServicesDisabledException(
-      [this.message = 'Location services is disabled.']);
+      [this.message = 'Location services are disabled.']);
 
   final String message;
 
