@@ -67,7 +67,7 @@ class Geofencing {
 
   /// Stop the geofencing service.
   ///
-  /// Setting the [keepsRegions] value to `true` will remove all regions.
+  /// If you want to keep added regions, set [keepsRegions] to `true`.
   Future<void> stop({bool keepsRegions = false}) async {
     if (_isRunningService) {
       await _unsubscribeStreams();
