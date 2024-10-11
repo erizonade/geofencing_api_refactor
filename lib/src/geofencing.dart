@@ -13,11 +13,15 @@ class Geofencing {
 
   // stream subscriptions
   StreamSubscription<Location>? _locationSubscription;
+  StreamSubscription<LocationServicesStatus>?
+      _locationServicesStatusSubscription;
 
   // listeners
   final List<GeofenceStatusChanged> _geofenceStatusChangedListeners = [];
   final List<GeofenceErrorCallback> _geofenceErrorCallbackListeners = [];
   final List<LocationChanged> _locationChangedListeners = [];
+  final List<LocationServicesStatusChanged>
+      _locationServicesStatusChangedListeners = [];
 
   /// Set up the geofencing service.
   void setup({
@@ -152,11 +156,25 @@ class Geofencing {
     _locationChangedListeners.remove(listener);
   }
 
+  /// Register a closure to be called when the [LocationServicesStatus] changes.
+  void addLocationServicesStatusChangedListener(
+      LocationServicesStatusChanged listener) {
+    _locationServicesStatusChangedListeners.add(listener);
+  }
+
+  /// Remove a previously registered closure from the list of closures that
+  /// are notified when the [LocationServicesStatus] changes.
+  void removeLocationServicesStatusChangedListener(
+      LocationServicesStatusChanged listener) {
+    _locationServicesStatusChangedListeners.remove(listener);
+  }
+
   /// Clear all listeners registered in the service.
   void clearAllListeners() {
     _geofenceStatusChangedListeners.clear();
     _geofenceErrorCallbackListeners.clear();
     _locationChangedListeners.clear();
+    _locationServicesStatusChangedListeners.clear();
   }
 
   Future<void> _checkPermissions() async {
@@ -182,11 +200,17 @@ class Geofencing {
       accuracy: LocationAccuracy.navigation,
       interval: _options.interval,
     ).handleError(_onError).listen(_onLocation);
+
+    _locationServicesStatusSubscription =
+        FlLocation.getLocationServicesStatusStream()
+            .listen(_onLocationServicesStatus);
   }
 
   Future<void> _unsubscribeStreams() async {
     await _locationSubscription?.cancel();
+    await _locationServicesStatusSubscription?.cancel();
     _locationSubscription = null;
+    _locationServicesStatusSubscription = null;
   }
 
   void _onLocation(Location location) async {
@@ -274,6 +298,12 @@ class Geofencing {
     }
 
     return newStatus;
+  }
+
+  void _onLocationServicesStatus(LocationServicesStatus status) {
+    for (final listener in _locationServicesStatusChangedListeners.toList()) {
+      listener(status);
+    }
   }
 
   void _onError(Object error, StackTrace stackTrace) {
