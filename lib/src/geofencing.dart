@@ -17,6 +17,7 @@ class Geofencing {
   // listeners
   final List<GeofenceStatusChanged> _geofenceStatusChangedListeners = [];
   final List<GeofenceErrorCallback> _geofenceErrorCallbackListeners = [];
+  final List<LocationChanged> _locationChangedListeners = [];
 
   /// Set up the geofencing service.
   void setup({
@@ -140,10 +141,22 @@ class Geofencing {
     _geofenceErrorCallbackListeners.remove(listener);
   }
 
+  /// Register a closure to be called when the [Location] changes.
+  void addLocationChangedListener(LocationChanged listener) {
+    _locationChangedListeners.add(listener);
+  }
+
+  /// Remove a previously registered closure from the list of closures that
+  /// are notified when the [Location] changes.
+  void removeLocationChangedListener(LocationChanged listener) {
+    _locationChangedListeners.remove(listener);
+  }
+
   /// Clear all listeners registered in the service.
   void clearAllListeners() {
     _geofenceStatusChangedListeners.clear();
     _geofenceErrorCallbackListeners.clear();
+    _locationChangedListeners.clear();
   }
 
   Future<void> _checkPermissions() async {
@@ -191,6 +204,10 @@ class Geofencing {
 
     // Pause location for synchronous processing of region
     _locationSubscription?.pause();
+
+    for (final listener in _locationChangedListeners.toList()) {
+      listener(location);
+    }
 
     GeofenceStatus status;
     for (final GeofenceRegion region in _regions.values.toList()) {

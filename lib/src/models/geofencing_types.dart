@@ -13,3 +13,5 @@ typedef GeofenceErrorCallback = void Function(
   Object error,
   StackTrace stackTrace,
 );
+
+typedef LocationChanged = void Function(Location location);
