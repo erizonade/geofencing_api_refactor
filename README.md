@@ -45,12 +45,34 @@ Open the `AndroidManifest.xml` file and declare permission between the `<manifes
 
 ### :baby_chick: iOS
 
-Open the `ios/Runner/Info.plist` file and declare permission within the `<dict>` tag.
+Open the `ios/Runner/Info.plist` file and declare description within the `<dict>` tag.
 
 ```
 <key>NSLocationWhenInUseUsageDescription</key>
 <string>Used to collect location data.</string>
 ```
+
+### :baby_chick: Background Mode
+
+To perform geofencing in the background, declare permissions and descriptions.
+
+```
+<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+```
+
+```
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>Used to collect location data in the background.</string>
+<key>NSLocationAlwaysUsageDescription</key>
+<string>Used to collect location data in the background.</string>
+<key>UIBackgroundModes</key>
+<array>
+    <string>fetch</string>
+    <string>location</string>
+</array>
+```
+
+Then use [flutter_foreground_task](https://github.com/Dev-hwang/flutter_foreground_task) to implement a background geofencing service.
 
 ## How to use
 
@@ -83,12 +105,12 @@ void setupGeofencing() {
 ```
 
 3. Create geofence regions. Use the `.circular` or `.polygon` constructor.
-* (common) `id`: The unique id of the geofence region.
-* (common) `data`: The data of the geofence region.
-* (common) `loiteringDelay`: The delay between `GeofenceStatus.enter` and `GeofenceStatus.dwell` in milliseconds. The default is `30000`.
-* (circular) `center`: The center coordinates of the geofence.
-* (circular) `radius`: The radius of the geofence. This value should be 10 meters or greater.
-* (polygon) `polygon`: The polygon coordinates of the geofence. This value must have size 3 or greater.
+* `id`: The unique id of the geofence region.
+* `data`: The data of the geofence region.
+* `loiteringDelay`: The delay between `GeofenceStatus.enter` and `GeofenceStatus.dwell` in milliseconds. The default is `30000`.
+* `center`: The center coordinates of the geofence. (circular)
+* `radius`: The radius of the geofence. This value should be 10 meters or greater. (circular)
+* `polygon`: The polygon coordinates of the geofence. This value must have size 3 or greater. (polygon)
 
 ```dart
 final Set<GeofenceRegion> _regions = {
