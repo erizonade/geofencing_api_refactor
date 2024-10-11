@@ -23,6 +23,16 @@ class Geofencing {
   final List<LocationServicesStatusChanged>
       _locationServicesStatusChangedListeners = [];
 
+  /// Request location permission.
+  Future<LocationPermission> requestLocationPermission() {
+    return FlLocation.requestLocationPermission();
+  }
+
+  /// Get location permission.
+  Future<LocationPermission> getLocationPermission() {
+    return FlLocation.checkLocationPermission();
+  }
+
   /// Set up the geofencing service.
   void setup({
     int? interval,
@@ -182,16 +192,12 @@ class Geofencing {
       throw LocationServicesDisabledException();
     }
 
-    LocationPermission permission = await FlLocation.checkLocationPermission();
+    final LocationPermission permission =
+        await FlLocation.checkLocationPermission();
     if (permission == LocationPermission.deniedForever) {
       throw LocationPermissionPermanentlyDeniedException();
     } else if (permission == LocationPermission.denied) {
-      permission = await FlLocation.requestLocationPermission();
-      if (permission == LocationPermission.denied) {
-        throw LocationPermissionDeniedException();
-      } else if (permission == LocationPermission.deniedForever) {
-        throw LocationPermissionPermanentlyDeniedException();
-      }
+      throw LocationPermissionDeniedException();
     }
   }
 

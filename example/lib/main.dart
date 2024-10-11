@@ -174,7 +174,8 @@ class _DemoPageState extends State<DemoPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Geofencing.instance.requestLocationPermission();
       _setupGeofencing();
       _startGeofencing();
     });
