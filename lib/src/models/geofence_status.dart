@@ -7,5 +7,8 @@ enum GeofenceStatus {
   exit,
 
   /// The device stayed in the geofence area longer than the loiteringDelay.
-  dwell,
+  dwell;
+
+  factory GeofenceStatus.fromName(String name) =>
+      GeofenceStatus.values.firstWhere((e) => e.name == name);
 }

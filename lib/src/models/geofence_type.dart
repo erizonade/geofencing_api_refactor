@@ -4,5 +4,8 @@ enum GeofenceType {
   circular,
 
   /// A geofence with a polygon shape.
-  polygon,
+  polygon;
+
+  factory GeofenceType.fromName(String name) =>
+      GeofenceType.values.firstWhere((e) => e.name == name);
 }

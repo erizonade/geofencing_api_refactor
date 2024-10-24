@@ -68,6 +68,16 @@ abstract class GeofenceRegion {
         loiteringDelay: loiteringDelay,
       );
 
+  /// Creates a GeofenceRegion from json.
+  factory GeofenceRegion.fromJson(Map<String, dynamic> json) {
+    final GeofenceType type = GeofenceType.fromName(json['type']);
+    if (type == GeofenceType.circular) {
+      return GeofenceCircularRegion.fromJson(json);
+    } else {
+      return GeofencePolygonRegion.fromJson(json);
+    }
+  }
+
   /// Returns the fields of [GeofenceRegion] in JSON format.
   Map<String, dynamic> toJson();
 
@@ -99,16 +109,34 @@ class GeofenceCircularRegion extends GeofenceRegion {
   /// This value should be 10 meters or greater.
   final double radius;
 
+  /// Creates a GeofenceCircularRegion from json.
+  factory GeofenceCircularRegion.fromJson(Map<String, dynamic> json) {
+    final int? timestampMilli = json['timestamp'];
+    final DateTime? timestamp = timestampMilli != null
+        ? DateTime.fromMillisecondsSinceEpoch(timestampMilli)
+        : null;
+
+    return GeofenceCircularRegion(
+      id: json['id'],
+      data: json['data'],
+      center: LatLng.fromJson(json['center']),
+      radius: json['radius'],
+      status: GeofenceStatus.fromName(json['status']),
+      loiteringDelay: json['loiteringDelay'],
+      timestamp: timestamp,
+    );
+  }
+
   @override
   Map<String, dynamic> toJson() => {
-        'type': type,
+        'type': type.name,
         'id': id,
         'data': data,
         'center': center.toJson(),
         'radius': radius,
-        'status': status,
+        'status': status.name,
         'loiteringDelay': loiteringDelay,
-        'timestamp': timestamp,
+        'timestamp': timestamp?.millisecondsSinceEpoch,
       };
 
   @internal
@@ -145,15 +173,39 @@ class GeofencePolygonRegion extends GeofenceRegion {
   /// This value must have size 3 or greater.
   final List<LatLng> polygon;
 
+  /// Creates a GeofencePolygonRegion from json.
+  factory GeofencePolygonRegion.fromJson(Map<String, dynamic> json) {
+    final List<Map<String, dynamic>> polygonJson = json['polygon'];
+    final List<LatLng> polygon = [];
+    for (final latLngJson in polygonJson) {
+      final LatLng latLng = LatLng.fromJson(latLngJson);
+      polygon.add(latLng);
+    }
+
+    final int? timestampJson = json['timestamp'];
+    final DateTime? timestamp = timestampJson != null
+        ? DateTime.fromMillisecondsSinceEpoch(timestampJson)
+        : null;
+
+    return GeofencePolygonRegion(
+      id: json['id'],
+      data: json['data'],
+      polygon: polygon,
+      status: GeofenceStatus.fromName(json['status']),
+      loiteringDelay: json['loiteringDelay'],
+      timestamp: timestamp,
+    );
+  }
+
   @override
   Map<String, dynamic> toJson() => {
-        'type': type,
+        'type': type.name,
         'id': id,
         'data': data,
         'polygon': polygon.map((e) => e.toJson()).toList(),
-        'status': status,
+        'status': status.name,
         'loiteringDelay': loiteringDelay,
-        'timestamp': timestamp,
+        'timestamp': timestamp?.millisecondsSinceEpoch,
       };
 
   @internal
