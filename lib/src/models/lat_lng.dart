@@ -10,4 +10,14 @@ class LatLng {
 
   Map<String, dynamic> toJson() =>
       {'latitude': latitude, 'longitude': longitude};
+
+  @override
+  bool operator ==(Object other) =>
+      other is LatLng &&
+      runtimeType == other.runtimeType &&
+      latitude == other.latitude &&
+      longitude == other.longitude;
+
+  @override
+  int get hashCode => latitude.hashCode ^ longitude.hashCode;
 }
