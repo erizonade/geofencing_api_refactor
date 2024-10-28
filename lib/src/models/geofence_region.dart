@@ -1,5 +1,7 @@
+import 'package:fl_location/fl_location.dart';
 import 'package:meta/meta.dart';
 
+import '../utils/measurement_utils.dart';
 import 'geofence_type.dart';
 import 'geofence_status.dart';
 import 'lat_lng.dart';
@@ -80,6 +82,11 @@ abstract class GeofenceRegion {
 
   /// Returns the fields of [GeofenceRegion] in JSON format.
   Map<String, dynamic> toJson();
+
+  /// Calculates the remaining distance in meters from [location] to region.
+  double distanceTo(Location location) {
+    return MeasurementUtils.calculateRemainingDistance(location, this);
+  }
 
   @internal
   GeofenceRegion updateWith({
@@ -175,7 +182,7 @@ class GeofencePolygonRegion extends GeofenceRegion {
 
   /// Creates a GeofencePolygonRegion from json.
   factory GeofencePolygonRegion.fromJson(Map<String, dynamic> json) {
-    final List<Map<String, dynamic>> polygonJson = json['polygon'];
+    final List polygonJson = json['polygon'];
     final List<LatLng> polygon = [];
     for (final latLngJson in polygonJson) {
       final LatLng latLng = LatLng.fromJson(latLngJson);

@@ -18,6 +18,11 @@ This class represents a region containing a geofence.
 | `.circular` | Creates a GeofenceRegion with the circular type. |
 | `.polygon`  | Creates a GeofenceRegion with the polygon type.  |
 
+| method       | description                                                            |
+|--------------|------------------------------------------------------------------------|
+| `toJson`     | Returns the fields of `GeofenceRegion` in JSON format.                 |
+| `distanceTo` | Calculates the remaining distance in meters from `location` to region. |
+
 ### :chicken: GeofenceCircularRegion (extends GeofenceRegion)
 
 A GeofenceRegion with the circular type.
