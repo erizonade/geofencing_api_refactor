@@ -1,3 +1,8 @@
+## 1.3.0
+
+* [**FEAT**] Add `GeofenceRegion.distanceTo(Location)` function
+* [**FIX**] Fix `GeofenceRegion.fromJson` parsing error
+
 ## 1.2.0
 
 * [**CHORE**] Upgrade dependencies
