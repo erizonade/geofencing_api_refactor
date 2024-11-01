@@ -40,6 +40,7 @@ Since the geofencing service works based on location, we need to declare locatio
 Open the `AndroidManifest.xml` file and declare permission between the `<manifest>` and `<application>` tags.
 
 ```
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 ```
 
@@ -74,14 +75,51 @@ To perform geofencing in the background, declare permissions and descriptions.
 
 Then use [flutter_foreground_task](https://github.com/Dev-hwang/flutter_foreground_task) to implement a background geofencing service.
 
+demo: https://github.com/Dev-hwang/flutter_foreground_task_example/tree/main/geofencing_service
+
 ## How to use
 
 1. Request location permission. To start the geofencing service, the permission result must be `always` or `whileInUse`.
 
 ```dart
-void requestPermissions() async {
-  final LocationPermission permission =
-      await Geofencing.instance.requestLocationPermission();
+Future<bool> requestLocationPermission({bool background = false}) async {
+  if (!await Geofencing.instance.isLocationServicesEnabled) {
+    // Location services is disabled.
+    return false;
+  }
+
+  LocationPermission permission =
+      await Geofencing.instance.getLocationPermission();
+  if (permission == LocationPermission.denied) {
+    // Android: ACCESS_COARSE_LOCATION or ACCESS_FINE_LOCATION
+    // iOS 12-: NSLocationWhenInUseUsageDescription or NSLocationAlwaysAndWhenInUseUsageDescription
+    // iOS 13+: NSLocationWhenInUseUsageDescription
+    permission = await Geofencing.instance.requestLocationPermission();
+  }
+
+  if (permission == LocationPermission.denied ||
+      permission == LocationPermission.deniedForever) {
+    // Location permission has been ${permission.name}.
+    return false;
+  }
+
+  // Location permission must always be granted (LocationPermission.always)
+  // to collect location data in the background.
+  if (Platform.isAndroid &&
+      background &&
+      permission == LocationPermission.whileInUse) {
+    // You need a clear explanation of why your app's feature needs access to background location.
+
+    // Android: ACCESS_BACKGROUND_LOCATION
+    permission = await Geofencing.instance.requestLocationPermission();
+
+    if (permission != LocationPermission.always) {
+      // Location permission must always be granted to collect location in the background.
+      return false;
+    }
+  }
+
+  return true;
 }
 ```
 

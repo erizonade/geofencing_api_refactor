@@ -23,6 +23,11 @@ class Geofencing {
   final List<LocationServicesStatusChanged>
       _locationServicesStatusChangedListeners = [];
 
+  /// Whether location services is enabled.
+  Future<bool> get isLocationServicesEnabled {
+    return FlLocation.isLocationServicesEnabled;
+  }
+
   /// Request location permission.
   Future<LocationPermission> requestLocationPermission() {
     return FlLocation.requestLocationPermission();

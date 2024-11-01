@@ -1,4 +1,5 @@
 import 'dart:developer' as dev;
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -104,6 +105,46 @@ class DemoPage extends StatefulWidget {
 }
 
 class _DemoPageState extends State<DemoPage> {
+  Future<bool> _requestLocationPermission({bool background = false}) async {
+    if (!await Geofencing.instance.isLocationServicesEnabled) {
+      // Location services is disabled.
+      return false;
+    }
+
+    LocationPermission permission =
+        await Geofencing.instance.getLocationPermission();
+    if (permission == LocationPermission.denied) {
+      // Android: ACCESS_COARSE_LOCATION or ACCESS_FINE_LOCATION
+      // iOS 12-: NSLocationWhenInUseUsageDescription or NSLocationAlwaysAndWhenInUseUsageDescription
+      // iOS 13+: NSLocationWhenInUseUsageDescription
+      permission = await Geofencing.instance.requestLocationPermission();
+    }
+
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      // Location permission has been ${permission.name}.
+      return false;
+    }
+
+    // Location permission must always be granted (LocationPermission.always)
+    // to collect location data in the background.
+    if (Platform.isAndroid &&
+        background &&
+        permission == LocationPermission.whileInUse) {
+      // You need a clear explanation of why your app's feature needs access to background location.
+
+      // Android: ACCESS_BACKGROUND_LOCATION
+      permission = await Geofencing.instance.requestLocationPermission();
+
+      if (permission != LocationPermission.always) {
+        // Location permission must always be granted to collect location in the background.
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   void _setupGeofencing() {
     try {
       Geofencing.instance.setup(
@@ -175,7 +216,7 @@ class _DemoPageState extends State<DemoPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Geofencing.instance.requestLocationPermission();
+      await _requestLocationPermission();
       _setupGeofencing();
       _startGeofencing();
     });
