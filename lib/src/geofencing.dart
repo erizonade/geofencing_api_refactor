@@ -216,7 +216,7 @@ class Geofencing {
                 accuracy: LocationAccuracy.high,
                 distanceFilter: 0,
                 timeLimit: Duration(milliseconds: 5000)))
-        .listen((position) {});
+        .listen(_onLocation);
 
     // _locationServicesStatusSubscription =
     //     FlLocation.getLocationServicesStatusStream()

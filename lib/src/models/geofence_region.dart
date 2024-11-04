@@ -1,4 +1,4 @@
-import 'package:fl_location/fl_location.dart';
+import 'package:geofencing_api/geofencing_api.dart';
 import 'package:meta/meta.dart';
 
 import '../utils/measurement_utils.dart';
@@ -84,7 +84,7 @@ abstract class GeofenceRegion {
   Map<String, dynamic> toJson();
 
   /// Calculates the remaining distance in meters from [location] to region.
-  double distanceTo(Location location) {
+  double distanceTo(Position location) {
     return MeasurementUtils.calculateRemainingDistance(location, this);
   }
 
