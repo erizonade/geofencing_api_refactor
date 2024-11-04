@@ -12,9 +12,8 @@ class Geofencing {
   bool _isRunningService = false;
 
   // stream subscriptions
-  StreamSubscription<Location>? _locationSubscription;
-  StreamSubscription<LocationServicesStatus>?
-      _locationServicesStatusSubscription;
+  StreamSubscription<Position>? _locationSubscription;
+  StreamSubscription<ServiceStatus>? _locationServicesStatusSubscription;
 
   // listeners
   final List<GeofenceStatusChanged> _geofenceStatusChangedListeners = [];
@@ -25,17 +24,18 @@ class Geofencing {
 
   /// Whether location services is enabled.
   Future<bool> get isLocationServicesEnabled {
-    return FlLocation.isLocationServicesEnabled;
+    // return FlLocation.isLocationServicesEnabled;
+    return Geolocator.isLocationServiceEnabled();
   }
 
   /// Request location permission.
   Future<LocationPermission> requestLocationPermission() {
-    return FlLocation.requestLocationPermission();
+    return Geolocator.requestPermission();
   }
 
   /// Get location permission.
   Future<LocationPermission> getLocationPermission() {
-    return FlLocation.checkLocationPermission();
+    return Geolocator.checkPermission();
   }
 
   /// Set up the geofencing service.
@@ -193,12 +193,11 @@ class Geofencing {
   }
 
   Future<void> _checkPermissions() async {
-    if (!await FlLocation.isLocationServicesEnabled) {
+    if (!await Geolocator.isLocationServiceEnabled()) {
       throw LocationServicesDisabledException();
     }
 
-    final LocationPermission permission =
-        await FlLocation.checkLocationPermission();
+    final LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.deniedForever) {
       throw LocationPermissionPermanentlyDeniedException();
     } else if (permission == LocationPermission.denied) {
@@ -207,14 +206,24 @@ class Geofencing {
   }
 
   Future<void> _subscribeStreams() async {
-    _locationSubscription = FlLocation.getLocationStream(
-      accuracy: LocationAccuracy.navigation,
-      interval: _options.interval,
-    ).handleError(_onError).listen(_onLocation);
+    // _locationSubscription = FlLocation.getLocationStream(
+    //   accuracy: LocationAccuracy.navigation,
+    //   interval: _options.interval,
+    // ).handleError(_onError).listen(_onLocation);
+
+    _locationSubscription = Geolocator.getPositionStream(
+            locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.high,
+                distanceFilter: 0,
+                timeLimit: Duration(milliseconds: 5000)))
+        .listen((position) {});
+
+    // _locationServicesStatusSubscription =
+    //     FlLocation.getLocationServicesStatusStream()
+    //         .listen(_onLocationServicesStatus);
 
     _locationServicesStatusSubscription =
-        FlLocation.getLocationServicesStatusStream()
-            .listen(_onLocationServicesStatus);
+        Geolocator.getServiceStatusStream().listen(_onLocationServicesStatus);
   }
 
   Future<void> _unsubscribeStreams() async {
@@ -224,12 +233,12 @@ class Geofencing {
     _locationServicesStatusSubscription = null;
   }
 
-  void _onLocation(Location location) async {
-    if (!_options.allowsMockLocation && location.isMock) {
-      _printDebugLog(
-          'The location was rejected. reason: options.allowsMockLocation != location.isMock');
-      return;
-    }
+  void _onLocation(Position location) async {
+    // if (!_options.allowsMockLocation && location.isMock) {
+    //   _printDebugLog(
+    //       'The location was rejected. reason: options.allowsMockLocation != location.isMock');
+    //   return;
+    // }
 
     if (_options.accuracy < location.accuracy) {
       _printDebugLog(
@@ -265,11 +274,11 @@ class Geofencing {
     _locationSubscription?.resume();
   }
 
-  GeofenceStatus _determineStatus(Location location, GeofenceRegion region) {
+  GeofenceStatus _determineStatus(Position location, GeofenceRegion region) {
     // Check whether location is contained in region
     bool containsLocation = false;
     if (region is GeofenceCircularRegion) {
-      final double remaining = LocationUtils.distanceBetween(location.latitude,
+      final double remaining = Geolocator.distanceBetween(location.latitude,
           location.longitude, region.center.latitude, region.center.longitude);
       containsLocation = remaining <= region.radius;
     } else if (region is GeofencePolygonRegion) {
@@ -311,7 +320,7 @@ class Geofencing {
     return newStatus;
   }
 
-  void _onLocationServicesStatus(LocationServicesStatus status) {
+  void _onLocationServicesStatus(ServiceStatus status) {
     for (final listener in _locationServicesStatusChangedListeners.toList()) {
       listener(status);
     }
@@ -328,4 +337,16 @@ class Geofencing {
       dev.log("[Geofencing] $message");
     }
   }
+}
+
+/// An enumeration of location services status.
+enum LocationServicesStatus {
+  /// Location services are enabled.
+  enabled,
+
+  /// Location services are disabled.
+  disabled;
+
+  static LocationServicesStatus fromIndex(int? index) => LocationServicesStatus
+      .values[index ?? LocationServicesStatus.disabled.index];
 }

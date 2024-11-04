@@ -198,7 +198,7 @@ class _DemoPageState extends State<DemoPage> {
   Future<void> _onGeofenceStatusChanged(
     GeofenceRegion geofenceRegion,
     GeofenceStatus geofenceStatus,
-    Location location,
+    Position location,
   ) async {
     final String regionId = geofenceRegion.id;
     final String statusName = geofenceStatus.name;

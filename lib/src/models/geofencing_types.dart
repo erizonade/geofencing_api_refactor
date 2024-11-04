@@ -1,4 +1,5 @@
-import 'package:fl_location/fl_location.dart';
+// import 'package:fl_location/fl_location.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'geofence_region.dart';
 import 'geofence_status.dart';
@@ -6,7 +7,7 @@ import 'geofence_status.dart';
 typedef GeofenceStatusChanged = Future<void> Function(
   GeofenceRegion geofenceRegion,
   GeofenceStatus geofenceStatus,
-  Location location,
+  Position location,
 );
 
 typedef GeofenceErrorCallback = void Function(
@@ -14,7 +15,6 @@ typedef GeofenceErrorCallback = void Function(
   StackTrace stackTrace,
 );
 
-typedef LocationChanged = void Function(Location location);
+typedef LocationChanged = void Function(Position location);
 
-typedef LocationServicesStatusChanged = void Function(
-    LocationServicesStatus status);
+typedef LocationServicesStatusChanged = void Function(ServiceStatus status);
